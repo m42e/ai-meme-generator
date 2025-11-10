@@ -8,12 +8,42 @@ import sys
 from meme_generator import MemeGenerator
 
 
-def run_examples():
-    """Run several example meme generations."""
+def run_auto_examples():
+    """Run examples using the new automatic mode."""
     
-    print("AI Meme Generator - Examples")
+    print("AI Meme Generator - Auto Mode Examples")
     print("=" * 80)
-    print()
+    print("Demonstrating the new automatic mode where AI generates all text!\n")
+    
+    generator = MemeGenerator()
+    
+    statements = [
+        ("Students struggling to decide between studying and playing games", "example_auto_students.jpg"),
+        ("I think AI will replace all programmers by 2030", "example_auto_opinion.jpg"),
+        ("Developers distracted by new shiny frameworks instead of finishing projects", "example_auto_distracted.jpg"),
+        ("Finally fixed that bug that was bothering me for days", "example_auto_success.jpg"),
+        ("Should I refactor this code or leave it alone", "example_auto_choice.jpg"),
+    ]
+    
+    for i, (statement, output) in enumerate(statements, 1):
+        print(f"{i}. Statement: {statement}")
+        
+        try:
+            output_path = generator.generate_meme_auto(statement, output)
+            print(f"   ✓ Saved to: {output_path}\n")
+        except Exception as e:
+            print(f"   ✗ Error: {e}\n")
+    
+    print("=" * 80)
+    print("Auto-generated examples complete! Check the output files.")
+
+
+def run_manual_examples():
+    """Run examples using manual text specification (original mode)."""
+    
+    print("\nAI Meme Generator - Manual Mode Examples")
+    print("=" * 80)
+    print("Demonstrating manual mode with specific text for each box:\n")
     
     generator = MemeGenerator()
     
@@ -100,33 +130,42 @@ def interactive_mode():
     generator.list_memes()
     
     print("=" * 80)
-    print("Enter your meme idea:")
-    prompt = input("Prompt (describe the situation): ")
+    print("\nChoose mode:")
+    print("1. Automatic mode (AI generates all text)")
+    print("2. Manual mode (you specify text for each box)")
+    mode = input("Enter choice (1 or 2, default: 1): ").strip() or "1"
     
-    if not prompt:
-        print("No prompt provided, exiting.")
+    print("\nEnter your meme idea:")
+    statement = input("Statement/situation: ")
+    
+    if not statement:
+        print("No statement provided, exiting.")
         return
     
-    # Find the best meme
-    best_meme, score = generator.find_best_meme(prompt)
-    
-    print(f"\nBest match: {best_meme['name']}")
-    print(f"Text boxes needed: {', '.join([box['id'] for box in best_meme['text_boxes']])}")
-    print()
-    
-    # Get text inputs
-    text_inputs = {}
-    for text_box in best_meme['text_boxes']:
-        text = input(f"Text for '{text_box['id']}': ")
-        if text:
-            text_inputs[text_box['id']] = text
-    
-    # Generate the meme
-    output_path = input("\nOutput filename (default: output_meme.jpg): ") or "output_meme.jpg"
+    output_path = input("Output filename (default: output_meme.jpg): ") or "output_meme.jpg"
     
     try:
-        result = generator.generate_meme(prompt, text_inputs, output_path)
-        print(f"\n✓ Success! Meme generated at: {result}")
+        if mode == "1":
+            # Automatic mode
+            result = generator.generate_meme_auto(statement, output_path)
+            print(f"\n✓ Success! Meme generated at: {result}")
+        else:
+            # Manual mode
+            best_meme, score = generator.find_best_meme(statement)
+            
+            print(f"\nBest match: {best_meme['name']}")
+            print(f"Text boxes needed: {', '.join([box['id'] for box in best_meme['text_boxes']])}")
+            print()
+            
+            # Get text inputs
+            text_inputs = {}
+            for text_box in best_meme['text_boxes']:
+                text = input(f"Text for '{text_box['id']}': ")
+                if text:
+                    text_inputs[text_box['id']] = text
+            
+            result = generator.generate_meme(statement, text_inputs, output_path)
+            print(f"\n✓ Success! Meme generated at: {result}")
     except Exception as e:
         print(f"\n✗ Error: {e}")
 
@@ -136,8 +175,15 @@ def main():
     
     if len(sys.argv) > 1 and sys.argv[1] == "interactive":
         interactive_mode()
+    elif len(sys.argv) > 1 and sys.argv[1] == "manual":
+        run_manual_examples()
+    elif len(sys.argv) > 1 and sys.argv[1] == "auto":
+        run_auto_examples()
     else:
-        run_examples()
+        # Run both auto and manual examples
+        run_auto_examples()
+        print("\n\n")
+        run_manual_examples()
 
 
 if __name__ == "__main__":

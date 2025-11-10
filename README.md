@@ -1,17 +1,29 @@
 # AI Meme Generator
 
-An intelligent meme generator that uses AI to automatically select the perfect meme template based on your text description, then generates the meme with your custom text.
+An intelligent meme generator that uses AI to automatically select the perfect meme template and generate text based on your statement. Just describe your situation, and let the AI do the rest!
 
 ## Features
 
-- 🤖 **AI-Powered Selection**: Uses Mistral AI to intelligently match your prompt to the best meme template
+- 🎯 **Fully Automatic Mode**: Just provide a statement - AI selects the meme AND generates all text!
+- 🤖 **AI-Powered Selection**: Uses Mistral AI to intelligently match your statement to the best meme template
+- ✍️ **AI Text Generation**: Automatically generates appropriate, funny text for all meme text boxes
 - 📝 **Smart Text Overlay**: Automatically positions text with proper formatting and outlines for readability
 - 🎨 **Placeholder Generation**: Creates placeholder images if actual meme templates aren't available
 - 💾 **Extensible Database**: Easy-to-modify JSON database of meme templates with descriptions and text box positions
 - 🚀 **Simple CLI**: Easy-to-use command-line interface
-- 🔄 **Fallback Mode**: Works without API key using keyword matching
+- 🔄 **Fallback Mode**: Works without API key using keyword matching and basic text generation
+- 🎛️ **Manual Mode**: Advanced users can still specify text for each box manually
 
 ## How It Works
+
+### Automatic Mode (Recommended)
+
+1. **User provides a statement**: Just describe your situation or idea
+2. **AI selects meme template**: Mistral AI analyzes your statement and picks the best meme
+3. **AI generates text**: Automatically creates appropriate text for each text box
+4. **Creates the meme**: Overlays the generated text and saves your meme
+
+### Manual Mode (Advanced)
 
 1. **Loads meme database**: Reads from `meme_database.json` containing meme templates with:
    - Template descriptions for AI matching
@@ -20,7 +32,7 @@ An intelligent meme generator that uses AI to automatically select the perfect m
    
 2. **AI-powered matching**: Uses Mistral AI to analyze your prompt and intelligently select the most appropriate meme template
 
-3. **Text overlay**: Places your text on the meme at predefined locations with proper formatting
+3. **Text overlay**: Places your specified text on the meme at predefined locations with proper formatting
 
 4. **Saves result**: Outputs the generated meme as an image file
 
@@ -86,13 +98,45 @@ This will show you:
 
 ### Generate a Meme
 
-Basic syntax:
+#### Automatic Mode (Recommended) - Just Provide a Statement
+
+The easiest way to generate a meme is to simply provide your statement or situation. The AI will:
+1. Select the most appropriate meme template
+2. Automatically generate text for all text boxes
+
+**Basic syntax:**
+
+```bash
+python meme_generator.py generate "<your statement>"
+```
+
+**Examples:**
+
+```bash
+python meme_generator.py generate "Students struggling to decide between studying and playing games"
+```
+
+```bash
+python meme_generator.py generate "I believe AI will replace all programmers by 2030"
+```
+
+```bash
+python meme_generator.py generate "Developers distracted by new shiny frameworks"
+```
+
+The AI will analyze your statement, choose the best meme template (like Two Buttons, Change My Mind, or Distracted Boyfriend), and generate appropriate text for each part of the meme.
+
+#### Manual Mode (Advanced) - Specify Text for Each Box
+
+For more control, you can manually specify the text for each text box:
+
+**Basic syntax:**
 
 ```bash
 python meme_generator.py generate "<your prompt>" [text_box_id:text ...]
 ```
 
-#### Examples
+**Examples:**
 
 **Drake Hotline Bling** - Showing preference:
 ```bash
@@ -179,6 +223,21 @@ The generator uses **Mistral AI** for intelligent meme selection:
    - Works offline without any API requirements
    - Good for basic use cases
 
+### AI Text Generation
+
+The generator uses **Mistral AI** to automatically generate meme text:
+
+1. **With API Key**: Sends your statement, selected meme info, and text box IDs to Mistral AI
+   - The AI understands the meme format and your statement
+   - Generates appropriate, funny, and contextually relevant text for each box
+   - Returns text in the correct format for the meme
+   - Keeps text concise and punchy for maximum meme impact
+
+2. **Fallback Mode** (no API key): Uses simple text splitting strategies
+   - Different strategies for different meme types (e.g., splits statement in half for Drake meme)
+   - Works offline without any API requirements
+   - Provides basic but functional text generation
+
 ### Text Rendering
 
 - Uses bold system fonts (Liberation Sans, DejaVu, etc.)
@@ -189,7 +248,7 @@ The generator uses **Mistral AI** for intelligent meme selection:
 ## Dependencies
 
 - **Pillow**: Image manipulation and text rendering
-- **mistralai**: Mistral AI client for intelligent meme selection
+- **mistralai**: Mistral AI client for intelligent meme selection and text generation
 - **numpy**: Numerical operations
 
 ## Output
@@ -202,6 +261,7 @@ Current limitations:
 - Requires predefined text box positions for each meme
 - Uses placeholder images if actual meme images aren't provided
 - Font selection is system-dependent
+- Text generation quality improves significantly with Mistral API key
 
 Possible improvements:
 - Automatic text box detection using computer vision
@@ -209,7 +269,7 @@ Possible improvements:
 - Support for animated GIFs
 - Web interface
 - More sophisticated text formatting options
-- GPT integration for automatic text generation
+- Multi-language support
 
 ## License
 
