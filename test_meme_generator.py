@@ -94,6 +94,45 @@ def test_text_wrapping():
             os.unlink(tmp_path)
 
 
+def test_auto_generate_text():
+    """Test automatic text generation for meme text boxes."""
+    print("\nTest 5: Auto text generation...")
+    generator = MemeGenerator()
+    
+    # Test with a simple statement
+    statement = "Students struggling to choose between studying and gaming"
+    meme, _ = generator.find_best_meme(statement)
+    text_inputs = generator.generate_text_for_meme(statement, meme)
+    
+    assert text_inputs is not None, "No text inputs generated"
+    assert len(text_inputs) > 0, "No text boxes filled"
+    
+    print(f"✓ Generated text for {len(text_inputs)} boxes")
+
+
+def test_auto_meme_generation():
+    """Test fully automatic meme generation."""
+    print("\nTest 6: Full auto meme generation...")
+    generator = MemeGenerator()
+    
+    with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp:
+        tmp_path = tmp.name
+    
+    try:
+        result = generator.generate_meme_auto(
+            "Students can't decide between studying and playing",
+            tmp_path
+        )
+        
+        assert os.path.exists(result), f"Output file not created: {result}"
+        assert os.path.getsize(result) > 0, "Output file is empty"
+        print(f"✓ Auto meme generated successfully: {result}")
+    
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+
 def run_all_tests():
     """Run all tests."""
     print("=" * 80)
@@ -105,6 +144,8 @@ def run_all_tests():
         test_find_best_meme,
         test_generate_meme,
         test_text_wrapping,
+        test_auto_generate_text,
+        test_auto_meme_generation,
     ]
     
     failed = 0
