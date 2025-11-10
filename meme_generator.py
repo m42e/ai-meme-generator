@@ -148,6 +148,123 @@ Which meme template number (1-{len(self.memes)}) best fits this statement? Respo
         print(f"Selected meme: '{best_meme['name']}' (fallback score: {best_score:.3f})")
         return best_meme, best_score
     
+    def generate_text_for_meme(self, user_statement: str, meme: Dict) -> Dict[str, str]:
+        """
+        Generate text for all text boxes in a meme based on user's statement.
+        
+        Args:
+            user_statement: The user's statement/situation
+            meme: The meme template dictionary
+            
+        Returns:
+            Dictionary mapping text box IDs to generated text
+        """
+        if self.client:
+            return self._generate_text_with_mistral(user_statement, meme)
+        else:
+            return self._generate_text_fallback(user_statement, meme)
+    
+    def _generate_text_with_mistral(self, user_statement: str, meme: Dict) -> Dict[str, str]:
+        """Use Mistral AI to generate text for meme text boxes."""
+        # Build description of text boxes
+        text_box_descriptions = []
+        for box in meme['text_boxes']:
+            text_box_descriptions.append(f"- {box['id']}: (text field)")
+        
+        text_boxes_info = "\n".join(text_box_descriptions)
+        text_box_ids = [box['id'] for box in meme['text_boxes']]
+        
+        system_prompt = """You are a meme text generator. Given a user's statement and a meme template, 
+generate appropriate, funny, and relevant text for each text box in the meme.
+Keep text short and punchy - memes work best with concise text.
+Respond with ONLY a JSON object mapping text box IDs to their text content.
+Example format: {"box1": "text for box 1", "box2": "text for box 2"}"""
+        
+        user_message = f"""User's statement: "{user_statement}"
+
+Meme template: {meme['name']}
+Description: {meme['description']}
+
+Text boxes to fill:
+{text_boxes_info}
+
+Generate appropriate text for each text box (IDs: {', '.join(text_box_ids)}).
+Respond with ONLY valid JSON mapping IDs to text."""
+
+        try:
+            # Call Mistral AI
+            response = self.client.chat.complete(
+                model="mistral-small-latest",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ]
+            )
+            
+            # Parse response
+            answer = response.choices[0].message.content.strip()
+            
+            # Try to extract JSON from response
+            # Sometimes AI wraps JSON in markdown code blocks
+            if "```json" in answer:
+                answer = answer.split("```json")[1].split("```")[0].strip()
+            elif "```" in answer:
+                answer = answer.split("```")[1].split("```")[0].strip()
+            
+            text_inputs = json.loads(answer)
+            
+            # Validate that we got text for the expected boxes
+            valid_inputs = {}
+            for box_id in text_box_ids:
+                if box_id in text_inputs:
+                    valid_inputs[box_id] = text_inputs[box_id]
+            
+            if valid_inputs:
+                print(f"Generated text for {len(valid_inputs)} text boxes")
+                return valid_inputs
+            else:
+                print("No valid text boxes in Mistral response, using fallback")
+                return self._generate_text_fallback(user_statement, meme)
+            
+        except Exception as e:
+            print(f"Mistral AI error in text generation: {e}, using fallback")
+            return self._generate_text_fallback(user_statement, meme)
+    
+    def _generate_text_fallback(self, user_statement: str, meme: Dict) -> Dict[str, str]:
+        """Simple fallback text generation."""
+        text_inputs = {}
+        
+        # For simple memes, just split the statement
+        words = user_statement.split()
+        
+        # Different strategies for different meme types
+        if meme['id'] == 'drake_hotline':
+            # Split into rejection and approval
+            mid = len(words) // 2
+            text_inputs['top'] = ' '.join(words[:mid]) if mid > 0 else user_statement
+            text_inputs['bottom'] = ' '.join(words[mid:]) if mid < len(words) else user_statement
+        
+        elif meme['id'] == 'two_buttons':
+            # Split into two options and label
+            third = len(words) // 3
+            text_inputs['left_button'] = ' '.join(words[:third]) if third > 0 else "Option 1"
+            text_inputs['right_button'] = ' '.join(words[third:2*third]) if third > 0 else "Option 2"
+            text_inputs['label'] = ' '.join(words[2*third:]) if 2*third < len(words) else "Person"
+        
+        elif meme['id'] == 'success_kid':
+            # Top and bottom
+            mid = len(words) // 2
+            text_inputs['top'] = ' '.join(words[:mid]) if mid > 0 else user_statement
+            text_inputs['bottom'] = ' '.join(words[mid:]) if mid < len(words) else "Success!"
+        
+        else:
+            # Generic: use the statement for the first text box
+            if meme['text_boxes']:
+                text_inputs[meme['text_boxes'][0]['id']] = user_statement
+        
+        print(f"Generated fallback text for {len(text_inputs)} text boxes")
+        return text_inputs
+    
     def _get_font(self, size: int = 40) -> ImageFont.FreeTypeFont:
         """
         Get a font for text rendering.
@@ -303,6 +420,40 @@ Which meme template number (1-{len(self.memes)}) best fits this statement? Respo
         
         return output_path
     
+    def generate_meme_auto(self, user_statement: str, 
+                           output_path: str = "output_meme.jpg",
+                           create_placeholder: bool = True) -> str:
+        """
+        Automatically generate a complete meme from just a user statement.
+        
+        This method:
+        1. Selects the best meme template based on the statement
+        2. Generates appropriate text for all text boxes
+        3. Creates and saves the meme
+        
+        Args:
+            user_statement: The user's statement or situation
+            output_path: Where to save the generated meme
+            create_placeholder: If True and image doesn't exist, create a placeholder
+            
+        Returns:
+            Path to the generated meme
+        """
+        print(f"\nGenerating meme from statement: '{user_statement}'")
+        
+        # Step 1: Find the best matching meme
+        best_meme, score = self.find_best_meme(user_statement)
+        
+        # Step 2: Generate text for all text boxes
+        text_inputs = self.generate_text_for_meme(user_statement, best_meme)
+        
+        print(f"\nGenerated text:")
+        for box_id, text in text_inputs.items():
+            print(f"  {box_id}: '{text}'")
+        
+        # Step 3: Generate the meme
+        return self.generate_meme(user_statement, text_inputs, output_path, create_placeholder)
+    
     def _create_placeholder_image(self, meme: Dict) -> Image.Image:
         """
         Create a placeholder image for a meme template.
@@ -362,9 +513,14 @@ def main():
         print("\nUsage:")
         print("  python meme_generator.py list")
         print("    - List all available meme templates")
+        print("\n  python meme_generator.py generate <statement>")
+        print("    - Automatically generate a complete meme from your statement")
+        print("    - AI selects template AND generates all text")
         print("\n  python meme_generator.py generate <prompt> [text_box_id:text ...]")
-        print("    - Generate a meme based on prompt and text inputs")
-        print("\nExample:")
+        print("    - Generate a meme with manual text inputs (advanced mode)")
+        print("\nExamples:")
+        print('  python meme_generator.py generate "Students struggling to choose between studying and playing games"')
+        print()
         print('  python meme_generator.py generate "choosing between two options" \\')
         print('    left_button:"Do homework" right_button:"Play games" label:"Students"')
         print()
@@ -378,10 +534,10 @@ def main():
     
     elif command == "generate":
         if len(sys.argv) < 3:
-            print("Error: Please provide a prompt for meme generation")
+            print("Error: Please provide a statement or prompt for meme generation")
             return
         
-        prompt = sys.argv[2]
+        statement = sys.argv[2]
         
         # Parse text inputs from remaining arguments
         text_inputs = {}
@@ -390,10 +546,17 @@ def main():
                 key, value = arg.split(':', 1)
                 text_inputs[key] = value
         
-        # Generate the meme
+        # Determine mode: auto (no text inputs) or manual (with text inputs)
         output_path = "output_meme.jpg"
+        
         try:
-            result = generator.generate_meme(prompt, text_inputs, output_path)
+            if text_inputs:
+                # Manual mode: user provided text for specific boxes
+                result = generator.generate_meme(statement, text_inputs, output_path)
+            else:
+                # Auto mode: AI generates everything
+                result = generator.generate_meme_auto(statement, output_path)
+            
             print(f"\n✓ Success! Meme generated at: {result}")
         except Exception as e:
             print(f"\n✗ Error generating meme: {e}")
