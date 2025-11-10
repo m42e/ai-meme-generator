@@ -4,7 +4,7 @@ AI Meme Generator
 
 This script generates memes by:
 1. Loading a database of meme templates with descriptions
-2. Using AI (TF-IDF semantic matching) to find the best meme for a user's prompt
+2. Using AI (Mistral AI) to find the best meme for a user's prompt
 3. Overlaying text on the selected meme image
 4. Saving the generated meme
 """
@@ -15,24 +15,32 @@ import sys
 from typing import List, Dict, Tuple, Optional
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from mistralai import Mistral
 
 
 class MemeGenerator:
     """Main class for AI-powered meme generation."""
     
-    def __init__(self, database_path: str = "meme_database.json"):
+    def __init__(self, database_path: str = "meme_database.json", api_key: Optional[str] = None):
         """
         Initialize the meme generator.
         
         Args:
             database_path: Path to the JSON file containing meme templates
+            api_key: Mistral API key (if not provided, will look for MISTRAL_API_KEY env var)
         """
         self.database_path = database_path
         self.memes = self._load_database()
-        self.vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
-        self._precompute_embeddings()
+        
+        # Initialize Mistral client
+        self.api_key = api_key or os.environ.get("MISTRAL_API_KEY")
+        if not self.api_key:
+            print("Warning: No Mistral API key found. Set MISTRAL_API_KEY environment variable.")
+            print("Falling back to simple keyword matching.")
+            self.client = None
+        else:
+            self.client = Mistral(api_key=self.api_key)
+            print("Initialized Mistral AI client")
     
     def _load_database(self) -> List[Dict]:
         """Load the meme database from JSON file."""
@@ -45,15 +53,9 @@ class MemeGenerator:
         print(f"Loaded {len(memes)} meme templates from database")
         return memes
     
-    def _precompute_embeddings(self):
-        """Precompute TF-IDF vectors for all meme descriptions."""
-        descriptions = [meme['description'] + " " + meme['name'] for meme in self.memes]
-        self.meme_vectors = self.vectorizer.fit_transform(descriptions)
-        print("Precomputed TF-IDF vectors for all meme templates")
-    
     def find_best_meme(self, user_prompt: str) -> Tuple[Dict, float]:
         """
-        Find the best matching meme for the user's prompt using semantic similarity.
+        Find the best matching meme for the user's prompt using Mistral AI.
         
         Args:
             user_prompt: The user's text/prompt describing what they want
@@ -61,19 +63,89 @@ class MemeGenerator:
         Returns:
             Tuple of (best_meme_dict, similarity_score)
         """
-        # Vectorize the user prompt
-        prompt_vector = self.vectorizer.transform([user_prompt])
+        if self.client:
+            return self._find_best_meme_with_mistral(user_prompt)
+        else:
+            return self._find_best_meme_fallback(user_prompt)
+    
+    def _find_best_meme_with_mistral(self, user_prompt: str) -> Tuple[Dict, float]:
+        """Use Mistral AI to find the best meme."""
+        # Create a prompt for Mistral to analyze which meme fits best
+        meme_options = []
+        for i, meme in enumerate(self.memes):
+            meme_options.append(f"{i+1}. {meme['name']}: {meme['description']}")
         
-        # Calculate cosine similarities
-        similarities = cosine_similarity(prompt_vector, self.meme_vectors)[0]
+        meme_list = "\n".join(meme_options)
         
-        # Find the best match
-        best_idx = similarities.argmax()
-        best_score = similarities[best_idx]
+        system_prompt = """You are a meme selection expert. Given a user's statement or situation, 
+you need to select the most appropriate meme template from the provided list. 
+Respond with ONLY the number of the best matching meme (1-10) and a confidence score (0.0-1.0) 
+in the format: "NUMBER SCORE". For example: "3 0.85" """
         
-        best_meme = self.memes[best_idx]
-        print(f"Selected meme: '{best_meme['name']}' (similarity: {best_score:.3f})")
+        user_message = f"""User's statement: "{user_prompt}"
+
+Available meme templates:
+{meme_list}
+
+Which meme template number (1-{len(self.memes)}) best fits this statement? Respond with just the number and confidence score."""
+
+        try:
+            # Call Mistral AI
+            response = self.client.chat.complete(
+                model="mistral-small-latest",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ]
+            )
+            
+            # Parse response
+            answer = response.choices[0].message.content.strip()
+            parts = answer.split()
+            
+            if len(parts) >= 1:
+                meme_number = int(parts[0])
+                confidence = float(parts[1]) if len(parts) >= 2 else 0.8
+                
+                # Validate meme number
+                if 1 <= meme_number <= len(self.memes):
+                    best_meme = self.memes[meme_number - 1]
+                    print(f"Selected meme: '{best_meme['name']}' (confidence: {confidence:.3f})")
+                    return best_meme, confidence
+            
+            # If parsing failed, fall back
+            print("Failed to parse Mistral response, using fallback")
+            return self._find_best_meme_fallback(user_prompt)
+            
+        except Exception as e:
+            print(f"Mistral AI error: {e}, using fallback")
+            return self._find_best_meme_fallback(user_prompt)
+    
+    def _find_best_meme_fallback(self, user_prompt: str) -> Tuple[Dict, float]:
+        """Simple keyword-based fallback matching."""
+        prompt_lower = user_prompt.lower()
+        best_score = 0.0
+        best_meme = self.memes[0]
         
+        for meme in self.memes:
+            score = 0.0
+            description_lower = (meme['description'] + " " + meme['name']).lower()
+            
+            # Simple keyword matching
+            words = prompt_lower.split()
+            for word in words:
+                if len(word) > 3 and word in description_lower:
+                    score += 1.0
+            
+            # Normalize by number of words
+            if words:
+                score = score / len(words)
+            
+            if score > best_score:
+                best_score = score
+                best_meme = meme
+        
+        print(f"Selected meme: '{best_meme['name']}' (fallback score: {best_score:.3f})")
         return best_meme, best_score
     
     def _get_font(self, size: int = 40) -> ImageFont.FreeTypeFont:

@@ -4,11 +4,12 @@ An intelligent meme generator that uses AI to automatically select the perfect m
 
 ## Features
 
-- 🤖 **AI-Powered Selection**: Uses sentence transformers to semantically match your prompt to the best meme template
+- 🤖 **AI-Powered Selection**: Uses Mistral AI to intelligently match your prompt to the best meme template
 - 📝 **Smart Text Overlay**: Automatically positions text with proper formatting and outlines for readability
 - 🎨 **Placeholder Generation**: Creates placeholder images if actual meme templates aren't available
 - 💾 **Extensible Database**: Easy-to-modify JSON database of meme templates with descriptions and text box positions
 - 🚀 **Simple CLI**: Easy-to-use command-line interface
+- 🔄 **Fallback Mode**: Works without API key using keyword matching
 
 ## How It Works
 
@@ -17,7 +18,7 @@ An intelligent meme generator that uses AI to automatically select the perfect m
    - Image paths
    - Bounding boxes for text placement
    
-2. **AI-powered matching**: Uses semantic similarity (via sentence-transformers) to find the meme that best matches your prompt
+2. **AI-powered matching**: Uses Mistral AI to analyze your prompt and intelligently select the most appropriate meme template
 
 3. **Text overlay**: Places your text on the meme at predefined locations with proper formatting
 
@@ -42,6 +43,15 @@ cd ai-meme-generator
 ```bash
 pip install -r requirements.txt
 ```
+
+3. Set up your Mistral API key (optional, but recommended for best results):
+```bash
+export MISTRAL_API_KEY="your_api_key_here"
+```
+
+You can get a Mistral API key from [https://console.mistral.ai/](https://console.mistral.ai/)
+
+**Note**: The generator will work without an API key using a simple keyword matching fallback, but Mistral AI provides much better meme selection.
 
 ## Usage
 
@@ -156,12 +166,18 @@ The `meme_database.json` file contains all meme templates. Each template include
 
 ### AI Matching
 
-The generator uses TF-IDF (Term Frequency-Inverse Document Frequency) with scikit-learn to:
-1. Encode all meme descriptions into TF-IDF vectors
-2. Encode your prompt into a TF-IDF vector
-3. Calculate cosine similarity to find the best match
+The generator uses **Mistral AI** for intelligent meme selection:
 
-This allows the AI to understand semantic meaning and find relevant memes based on word importance and context, without requiring large pre-trained models or internet connectivity.
+1. **With API Key**: Sends your prompt and all meme descriptions to Mistral AI's `mistral-small-latest` model
+   - The AI analyzes the context and meaning of your prompt
+   - Compares it against all available meme templates
+   - Returns the best match with a confidence score
+   - Provides superior understanding of nuance and context
+
+2. **Fallback Mode** (no API key): Uses simple keyword matching
+   - Matches words from your prompt against meme descriptions
+   - Works offline without any API requirements
+   - Good for basic use cases
 
 ### Text Rendering
 
@@ -173,8 +189,8 @@ This allows the AI to understand semantic meaning and find relevant memes based 
 ## Dependencies
 
 - **Pillow**: Image manipulation and text rendering
-- **scikit-learn**: TF-IDF vectorization and similarity computation for AI-powered meme matching
-- **numpy**: Numerical operations for vectors
+- **mistralai**: Mistral AI client for intelligent meme selection
+- **numpy**: Numerical operations
 
 ## Output
 
