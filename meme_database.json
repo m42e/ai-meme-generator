@@ -1,0 +1,282 @@
+[
+  {
+    "id": "distracted_boyfriend",
+    "name": "Distracted Boyfriend",
+    "description": "A man looks at another woman while his girlfriend looks at him disapprovingly. Used for showing preference for one thing over another, being distracted, or choosing something new over something familiar.",
+    "image_path": "memes/distracted_boyfriend.jpg",
+    "text_boxes": [
+      {
+        "id": "girlfriend",
+        "x": 50,
+        "y": 50,
+        "width": 150,
+        "height": 100,
+        "align": "center"
+      },
+      {
+        "id": "boyfriend",
+        "x": 250,
+        "y": 300,
+        "width": 150,
+        "height": 100,
+        "align": "center"
+      },
+      {
+        "id": "other_woman",
+        "x": 450,
+        "y": 50,
+        "width": 150,
+        "height": 100,
+        "align": "center"
+      }
+    ]
+  },
+  {
+    "id": "drake_hotline",
+    "name": "Drake Hotline Bling",
+    "description": "Drake disapproving and approving. Used to show rejection of one thing and approval of another, preferences, better alternatives.",
+    "image_path": "memes/drake_hotline.jpg",
+    "text_boxes": [
+      {
+        "id": "top",
+        "x": 350,
+        "y": 50,
+        "width": 300,
+        "height": 150,
+        "align": "left"
+      },
+      {
+        "id": "bottom",
+        "x": 350,
+        "y": 250,
+        "width": 300,
+        "height": 150,
+        "align": "left"
+      }
+    ]
+  },
+  {
+    "id": "two_buttons",
+    "name": "Two Buttons",
+    "description": "A person sweating nervously while trying to decide between two buttons. Used for difficult choices, dilemmas, or being stuck between two options.",
+    "image_path": "memes/two_buttons.jpg",
+    "text_boxes": [
+      {
+        "id": "left_button",
+        "x": 50,
+        "y": 100,
+        "width": 150,
+        "height": 80,
+        "align": "center"
+      },
+      {
+        "id": "right_button",
+        "x": 250,
+        "y": 100,
+        "width": 150,
+        "height": 80,
+        "align": "center"
+      },
+      {
+        "id": "label",
+        "x": 50,
+        "y": 300,
+        "width": 350,
+        "height": 80,
+        "align": "center"
+      }
+    ]
+  },
+  {
+    "id": "change_my_mind",
+    "name": "Change My Mind",
+    "description": "A person sitting at a table with a sign. Used for stating controversial opinions or beliefs that you're willing to defend.",
+    "image_path": "memes/change_my_mind.jpg",
+    "text_boxes": [
+      {
+        "id": "sign",
+        "x": 200,
+        "y": 250,
+        "width": 350,
+        "height": 150,
+        "align": "center"
+      }
+    ]
+  },
+  {
+    "id": "expanding_brain",
+    "name": "Expanding Brain",
+    "description": "Four levels of brain expansion showing increasingly advanced or absurd ideas. Used for showing progression from simple to complex thoughts, or mocking pretentious thinking.",
+    "image_path": "memes/expanding_brain.jpg",
+    "text_boxes": [
+      {
+        "id": "level1",
+        "x": 300,
+        "y": 50,
+        "width": 300,
+        "height": 100,
+        "align": "left"
+      },
+      {
+        "id": "level2",
+        "x": 300,
+        "y": 200,
+        "width": 300,
+        "height": 100,
+        "align": "left"
+      },
+      {
+        "id": "level3",
+        "x": 300,
+        "y": 350,
+        "width": 300,
+        "height": 100,
+        "align": "left"
+      },
+      {
+        "id": "level4",
+        "x": 300,
+        "y": 500,
+        "width": 300,
+        "height": 100,
+        "align": "left"
+      }
+    ]
+  },
+  {
+    "id": "is_this",
+    "name": "Is This a Pigeon",
+    "description": "A person pointing at a butterfly asking if it's a pigeon. Used for misidentifying things, confusion, or wrongly categorizing something.",
+    "image_path": "memes/is_this.jpg",
+    "text_boxes": [
+      {
+        "id": "butterfly",
+        "x": 300,
+        "y": 100,
+        "width": 150,
+        "height": 80,
+        "align": "center"
+      },
+      {
+        "id": "person",
+        "x": 100,
+        "y": 300,
+        "width": 150,
+        "height": 80,
+        "align": "center"
+      },
+      {
+        "id": "question",
+        "x": 200,
+        "y": 450,
+        "width": 300,
+        "height": 100,
+        "align": "center"
+      }
+    ]
+  },
+  {
+    "id": "galaxy_brain",
+    "name": "Galaxy Brain",
+    "description": "Similar to expanding brain but with more cosmic imagery. Shows progression from small brain to galaxy brain thinking.",
+    "image_path": "memes/galaxy_brain.jpg",
+    "text_boxes": [
+      {
+        "id": "small",
+        "x": 300,
+        "y": 50,
+        "width": 300,
+        "height": 120,
+        "align": "left"
+      },
+      {
+        "id": "medium",
+        "x": 300,
+        "y": 220,
+        "width": 300,
+        "height": 120,
+        "align": "left"
+      },
+      {
+        "id": "large",
+        "x": 300,
+        "y": 390,
+        "width": 300,
+        "height": 120,
+        "align": "left"
+      }
+    ]
+  },
+  {
+    "id": "woman_yelling_at_cat",
+    "name": "Woman Yelling at Cat",
+    "description": "A woman yelling and a confused cat at a dinner table. Used for arguments, disagreements, or contrasting perspectives.",
+    "image_path": "memes/woman_yelling_at_cat.jpg",
+    "text_boxes": [
+      {
+        "id": "woman",
+        "x": 50,
+        "y": 50,
+        "width": 250,
+        "height": 150,
+        "align": "center"
+      },
+      {
+        "id": "cat",
+        "x": 350,
+        "y": 50,
+        "width": 250,
+        "height": 150,
+        "align": "center"
+      }
+    ]
+  },
+  {
+    "id": "success_kid",
+    "name": "Success Kid",
+    "description": "A baby making a fist pump with a determined look. Used for small victories, accomplishments, or fortunate outcomes.",
+    "image_path": "memes/success_kid.jpg",
+    "text_boxes": [
+      {
+        "id": "top",
+        "x": 50,
+        "y": 20,
+        "width": 400,
+        "height": 100,
+        "align": "center"
+      },
+      {
+        "id": "bottom",
+        "x": 50,
+        "y": 400,
+        "width": 400,
+        "height": 100,
+        "align": "center"
+      }
+    ]
+  },
+  {
+    "id": "spiderman_pointing",
+    "name": "Spider-Man Pointing",
+    "description": "Two Spider-Men pointing at each other. Used when two things are the same, hypocrisy, or finding a duplicate.",
+    "image_path": "memes/spiderman_pointing.jpg",
+    "text_boxes": [
+      {
+        "id": "left",
+        "x": 50,
+        "y": 50,
+        "width": 200,
+        "height": 100,
+        "align": "center"
+      },
+      {
+        "id": "right",
+        "x": 350,
+        "y": 50,
+        "width": 200,
+        "height": 100,
+        "align": "center"
+      }
+    ]
+  }
+]
