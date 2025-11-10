@@ -41,6 +41,8 @@ Thumbs.db
 # Generated memes
 output_*.jpg
 output_*.png
+example_*.jpg
+example_*.png
 
 # Model cache
 .cache/

@@ -45,6 +45,22 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Quick Start - Run Examples
+
+To quickly see the meme generator in action:
+
+```bash
+python examples.py
+```
+
+This will generate several example memes demonstrating different templates.
+
+For interactive mode:
+
+```bash
+python examples.py interactive
+```
+
 ### List Available Memes
 
 To see all available meme templates:
@@ -140,12 +156,12 @@ The `meme_database.json` file contains all meme templates. Each template include
 
 ### AI Matching
 
-The generator uses the `all-MiniLM-L6-v2` sentence transformer model to:
-1. Encode all meme descriptions into embeddings
-2. Encode your prompt into an embedding
+The generator uses TF-IDF (Term Frequency-Inverse Document Frequency) with scikit-learn to:
+1. Encode all meme descriptions into TF-IDF vectors
+2. Encode your prompt into a TF-IDF vector
 3. Calculate cosine similarity to find the best match
 
-This allows the AI to understand semantic meaning rather than just keyword matching.
+This allows the AI to understand semantic meaning and find relevant memes based on word importance and context, without requiring large pre-trained models or internet connectivity.
 
 ### Text Rendering
 
@@ -157,9 +173,8 @@ This allows the AI to understand semantic meaning rather than just keyword match
 ## Dependencies
 
 - **Pillow**: Image manipulation and text rendering
-- **sentence-transformers**: AI-powered semantic similarity
-- **numpy**: Numerical operations for embeddings
-- **openai**: (Optional) For future GPT integration
+- **scikit-learn**: TF-IDF vectorization and similarity computation for AI-powered meme matching
+- **numpy**: Numerical operations for vectors
 
 ## Output
 
